@@ -123,6 +123,14 @@ if ($this->startResultCache()) {
         $arElements[$elementFields["IBLOCK_SECTION_ID"]][$elementIndex]["ARTNUMBER"] = $elementFields["PROPERTY_ARTNUMBER_VALUE"];
         $arElements[$elementFields["IBLOCK_SECTION_ID"]][$elementIndex]["PRICE"] = $elementFields["PROPERTY_PRICE_VALUE"];
 
+        if (!isset($arResult["MAX_PRICE"]) || $elementFields["PROPERTY_PRICE_VALUE"] > $arResult["MAX_PRICE"]) {
+           $arResult["MAX_PRICE"] = $elementFields["PROPERTY_PRICE_VALUE"];
+        }
+        
+        if (!isset($arResult["MIN_PRICE"]) || $elementFields["PROPERTY_PRICE_VALUE"] < $arResult["MIN_PRICE"]) {
+            $arResult["MIN_PRICE"] = $elementFields["PROPERTY_PRICE_VALUE"];
+        }
+
         $elementIndex++;
     }
 
@@ -140,7 +148,9 @@ if ($this->startResultCache()) {
     }
 
     $this->setResultCacheKeys(array(
-        "ITEMS"
+        "ITEMS",
+        "MAX_PRICE",
+        "MIN_PRICE"
     ));
 
     $this->includeComponentTemplate();
