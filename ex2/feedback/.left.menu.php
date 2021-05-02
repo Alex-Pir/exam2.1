@@ -2,7 +2,7 @@
 $aMenuLinks = Array(
 	Array(
 		"Форма обратной связи", 
-		"/feedback/", 
+		"/ex2/feedback/",
 		Array(), 
 		Array(), 
 		"" 
