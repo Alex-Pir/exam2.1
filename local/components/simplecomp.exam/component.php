@@ -139,6 +139,10 @@ if ($this->startResultCache()) {
         }
     }
 
+    $this->setResultCacheKeys(array(
+        "ITEMS"
+    ));
+
     $this->includeComponentTemplate();
 }
 $APPLICATION->setTitle(GetMessage("SIMPLECOMP_EXAM2_CATALOG_ELEMENTS_COUNT", array("#COUNT#" =>  $arResult["ELEMENTS_COUNT"])));
