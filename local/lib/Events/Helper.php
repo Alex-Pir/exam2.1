@@ -3,11 +3,12 @@
 namespace Citrus\Events;
 
 use Bitrix\Main\Localization\Loc;
+use CEventLog;
 
 Loc::loadMessages(__FILE__);
 
 class Helper {
-    public static function feedbackMessageHandler(&$arFields) {
+    public static function feedbackMessageHandler(&$arFields, $messageID) {
         global $USER;
 
         $name = "";
@@ -27,5 +28,22 @@ class Helper {
                 "#AUTHOR_NAME#" => $name
             ]);
         }
+
+        static::addMessageToSystemLog(Loc::getMessage("EVENTS_HELPER_FEEDBACK_MESSAGE_TO_LOG", ["#AUTHOR_NAME#" => $arFields["AUTHOR"]]), $messageID);
+    }
+
+    protected static function addMessageToSystemLog($message, $messageID) {
+
+        if (!$message || !$messageID) {
+            return;
+        }
+
+        CEventLog::Add([
+            "SEVERITY" => "INFO",
+            "AUDIT_TYPE_ID" => "EVENT_FEEDBACK",
+            "MODULE_ID" => "main",
+            "ITEM_ID" => $messageID,
+            "DESCRIPTION" => $message,
+        ]);
     }
 }
