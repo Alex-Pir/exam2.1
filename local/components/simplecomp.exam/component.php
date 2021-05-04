@@ -27,10 +27,37 @@ if(!isset($arParams["CACHE_TIME"])) {
     $arParams["CACHE_TIME"] = 3600;
 }
 
+$pagerParameters = CDBResult::GetNavParams($arNavParams);
 
-if ($this->startResultCache()) {
+if ($this->startResultCache(false, array($pagerParameters))) {
 
     $ufLinkProp = $arParams["NEWS_ID_LINK"];
+
+
+
+    $arNewsFilter = array(
+        "IBLOCK_ID" => $arParams["NEWS_IBLOCK_ID"],
+        "ACTIVE" => "Y",
+        "CHECK_PERMISSIONS" => "Y"
+    );
+
+    $arNewsSelect = array(
+        "ID",
+        "NAME",
+        "DATE_ACTIVE_FROM"
+    );
+
+    $dbNews = CIBlockElement::GetList(array(), $arNewsFilter, false, array("nPageSize" => 2, "bShowAll" => false), $arNewsSelect);
+
+    $arResult['NAVIGATION'] = $dbNews->GetPageNavString("Страница: ");
+
+    while ($arResNews = $dbNews->GetNextElement()) {
+        $newsFields = $arResNews->GetFields();
+
+        $arResult["ITEMS"][$newsFields["ID"]]["NEWS_NAME"] = $newsFields["NAME"];
+        $arResult["ITEMS"][$newsFields["ID"]]["DATE"] = $newsFields["DATE_ACTIVE_FROM"];
+    }
+
 
     $arSectionFilter = array(
         "IBLOCK_ID" => $arParams["PRODUCTS_IBLOCK_ID"],
@@ -41,6 +68,7 @@ if ($this->startResultCache()) {
     $arSectionSelect = array(
         "ID",
         "NAME",
+        "SECTION_NAME",
         $ufLinkProp
     );
 
@@ -60,40 +88,16 @@ if ($this->startResultCache()) {
 
         foreach ($sectionFields[$ufLinkProp] as $field) {
             $arNewsID[] = $field;
-            $arResult["ITEMS"][$field]["SECTION_NAME"][] = $sectionFields["NAME"];
-            $arResult["ITEMS"][$field]["SECTION_ID"][] = $sectionFields["ID"];
+            if (isset($arResult["ITEMS"][$field])) {
+                $arResult["ITEMS"][$field]["SECTION_NAME"][] = $sectionFields["NAME"];
+                $arResult["ITEMS"][$field]["SECTION_ID"][] = $sectionFields["ID"];
+            }
         }
     }
+
 
     $arSectionsID = array_unique($arSectionsID);
     $arNewsID = array_unique($arNewsID);
-
-    $arNewsFilter = array(
-        "IBLOCK_ID" => $arParams["NEWS_IBLOCK_ID"],
-        "ID" => $arNewsID,
-        "ACTIVE" => "Y",
-        "CHECK_PERMISSIONS" => "Y"
-    );
-
-    $arNewsSelect = array(
-        "ID",
-        "NAME",
-        "DATE_ACTIVE_FROM"
-    );
-
-    $dbNews = CIBlockElement::GetList(array(), $arNewsFilter, false, false, $arNewsSelect);
-
-    while ($arResNews = $dbNews->GetNextElement()) {
-        $newsFields = $arResNews->GetFields();
-
-        if (!array_key_exists($newsFields["ID"], $arResult["ITEMS"])) {
-            continue;
-        }
-
-        $arResult["ITEMS"][$newsFields["ID"]]["NEWS_NAME"] = $newsFields["NAME"];
-        $arResult["ITEMS"][$newsFields["ID"]]["DATE"] = $newsFields["DATE_ACTIVE_FROM"];
-    }
-
 
     $arElementsFilter = array(
         "IBLOCK_ID" => $arParams["PRODUCTS_IBLOCK_ID"],
@@ -133,6 +137,8 @@ if ($this->startResultCache()) {
 
         $elementIndex++;
     }
+
+
 
     $arResult["ELEMENTS_COUNT"] = $elementIndex;
 

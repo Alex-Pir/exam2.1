@@ -30,3 +30,4 @@ if (!array_key_exists("ITEMS", $arResult) || empty($arResult["ITEMS"])) {
     </div>
 <?  $this->EndViewTarget();
 endif;?>
+<?echo $arResult['NAVIGATION']?>
