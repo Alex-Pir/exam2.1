@@ -30,11 +30,15 @@ if (empty($arParams["CACHE_TIME"])) {
 	$arParams["CACHE_TIME"] = 3600;
 }
 
-global $USER;
+global $USER, $APPLICATION;
+
+if (!$USER->IsAuthorized()) {
+    $APPLICATION->AuthForm(GetMessage("SIMPLECOMP_EXAM2_USERS_IS_NOT_AUTHORIZED"));
+}
 
 if($this->StartResultCache(false, $USER->GetID()))
 {
-
+    $uniqNewsID = [];
 	try {
 		$authorGroup = UserTable::getList([
 			"filter" => ["ID" => $USER->GetID()],
@@ -71,7 +75,9 @@ if($this->StartResultCache(false, $USER->GetID()))
 		$arNewsSelect = [
 		    "ID",
 			"NAME",
-			"PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}"
+			"PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}",
+            "DATE_ACTIVE_FROM",
+            "DATE_ACTIVE_TO"
 		];
 
 		$dbNews = CIBlockElement::GetList([], $arNewsFilter, false, false, $arNewsSelect);
@@ -81,6 +87,10 @@ if($this->StartResultCache(false, $USER->GetID()))
 		while($arNews = $dbNews->Fetch()) {
 
 		    $userId = $arNews["PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}_VALUE"];
+
+		    if (!in_array($arNews["ID"], $uniqNewsID)) {
+                $uniqNewsID[] = $arNews["ID"];
+            }
 
 		    if ($userId == $USER->GetID()) {
                 $newsID[] = $arNews["ID"];
@@ -106,5 +116,6 @@ if($this->StartResultCache(false, $USER->GetID()))
 		$this->AbortResultCache();
 	} finally {
         $this->includeComponentTemplate();
+        $APPLICATION->SetTitle(GetMessage("SIMPLECOMP_EXAM2_NEWS_COUNT", ["#COUNT#" => count($uniqNewsID)]));
     }
 }
