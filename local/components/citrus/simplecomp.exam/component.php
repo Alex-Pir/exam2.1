@@ -53,8 +53,8 @@ if($this->StartResultCache(false, $USER->GetID()))
 		$arUserID = [];
 
 		foreach ($authors as $author) {
-			$arUserID = $author["ID"];
-			$arResult[$author["ID"]] = $author;
+			$arUserID[] = $author["ID"];
+			$arResult["ITEMS"][$author["ID"]]["LOGIN"] = $author["LOGIN"];
 		}
 
 		if (!$arUserID) {
@@ -63,101 +63,48 @@ if($this->StartResultCache(false, $USER->GetID()))
 
 		$arNewsFilter = [
 			"IBLOCK_ID" => $arParams["NEWS_IBLOCK_ID"],
-			"PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}" => $arUserID
+			"PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}" => $arUserID,
+            "CHECK_PERMISSIONS" => "Y"
 		];
 
 
 		$arNewsSelect = [
+		    "ID",
 			"NAME",
 			"PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}"
 		];
 
-		$news = Iblock\ElementTable::getList([
-			"filter" => $arNewsFilter,
-			"select" => $arNewsSelect
-		])->fetchAll();
+		$dbNews = CIBlockElement::GetList([], $arNewsFilter, false, false, $arNewsSelect);
 
-		echo "<pre>";
-		var_export($news);
-		echo "</pre>";
+		$newsID = [];
 
-		foreach ($news as $new) {
+		while($arNews = $dbNews->Fetch()) {
 
-		}
+		    $userId = $arNews["PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}_VALUE"];
+
+		    if ($userId == $USER->GetID()) {
+                $newsID[] = $arNews["ID"];
+            }
+
+            $arResult["ITEMS"][$userId]["NEWS"][] = $arNews;
+        }
+
+        foreach ($arResult["ITEMS"] as $userKey => $arItems) {
+            if ($userKey == $USER->GetID()) {
+                continue;
+            }
+
+            foreach ($arItems["NEWS"] as $newKey => $arNews) {
+                if (in_array($arNews["ID"], $newsID)) {
+                    unset($arResult["ITEMS"][$userKey]["NEWS"][$newKey]);
+                }
+            }
+        }
 
 	} catch (Exception $ex) {
 		AddMessage2Log($ex->getMessage());
-	}
-
-
-
-	$arNewsFilter = [
-		"IBLOCK_ID" => $arParams["NEWS_IBLOCK_ID"],
-	];
-
-	$arNewsSelect = [
-		"ID",
-		"NAME",
-		"PROPERTY_{$arParams['AUTHOR_PARAM_CODE']}"
-	];
-	
-	//iblock elements
-	$arSelectElems = array (
-		"ID",
-		"IBLOCK_ID",
-		"NAME",
-	);
-	$arFilterElems = array (
-		"IBLOCK_ID" => $arParams["PRODUCTS_IBLOCK_ID"],
-		"ACTIVE" => "Y"
-	);
-	$arSortElems = array (
-			"NAME" => "ASC"
-	);
-	
-	$arResult["ELEMENTS"] = array();
-	$rsElements = CIBlockElement::GetList($arSortElems, $arFilterElems, false, false, $arSelectElems);
-	while($arElement = $rsElements->GetNext())
-	{
-		$arResult["ELEMENTS"][] = $arElement;
-	}
-	
-	//iblock sections
-	$arSelectSect = array (
-			"ID",
-			"IBLOCK_ID",
-			"NAME",
-	);
-	$arFilterSect = array (
-			"IBLOCK_ID" => $arParams["PRODUCTS_IBLOCK_ID"],
-			"ACTIVE" => "Y"
-	);
-	$arSortSect = array (
-			"NAME" => "ASC"
-	);
-	
-	$arResult["SECTIONS"] = array();
-	$rsSections = CIBlockSection::GetList($arSortSect, $arFilterSect, false, $arSelectSect, false);
-	while($arSection = $rsSections->GetNext())
-	{
-		$arResult["SECTIONS"][] = $arSection;
-	}
-		
-	// user
-	$arOrderUser = array("id");
-	$sortOrder = "asc";
-	$arFilterUser = array(
-		"ACTIVE" => "Y"
-	);
-	
-	$arResult["USERS"] = array();
-	$rsUsers = CUser::GetList($arOrderUser, $sortOrder, $arFilterUser); // выбираем пользователей
-	while($arUser = $rsUsers->GetNext())
-	{
-		$arResult["USERS"][] = $arUser;
-	}	
-	
-	
+		$this->AbortResultCache();
+	} finally {
+        $this->includeComponentTemplate();
+    }
 }
-$this->includeComponentTemplate();	
-?>
