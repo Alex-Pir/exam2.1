@@ -119,3 +119,20 @@ if($this->StartResultCache(false, $USER->GetID()))
         $APPLICATION->SetTitle(GetMessage("SIMPLECOMP_EXAM2_NEWS_COUNT", ["#COUNT#" => count($uniqNewsID)]));
     }
 }
+
+if (!empty($arParams["PRODUCT_IBLOCK_ID"]) && $arParams["PRODUCT_IBLOCK_ID"] > 0) {
+    $this->AddIncludeAreaIcons(
+        Array( //массив кнопок toolbar'a
+            Array(
+                "ID" => "news_edit_list_button",
+                "TITLE" => GetMessage("SIMPLECOMP_EXAM2_IBLOCK_PANEL_BUTTON"),
+                "URL" => "/bitrix/admin/iblock_element_admin.php?IBLOCK_ID={$arParams["PRODUCT_IBLOCK_ID"]}&type=products&lang=ru&find_el_y=Y&clear_filter=Y&apply_filter=Y", //или javascript:MyJSFunction ()
+                "MENU" => Array(
+                    //массив пунктов контекстного меню
+                ),
+                "IN_PARAMS_MENU" => true, //показать в контекстном меню
+                "IN_MENU" => false //показать в подменю компонента
+            )
+        )
+    );
+}

@@ -7,3 +7,4 @@ $MESS["SIMPLECOMP_EXAM2_USER_NOT_FOUND"] = "Пользователь не най
 $MESS["SIMPLECOMP_EXAM2_USERS_ID_NOT_FOUND"] = "Не удалось получить ID пользователей с такой же группой, как у текущего";
 $MESS["SIMPLECOMP_EXAM2_USERS_IS_NOT_AUTHORIZED"] = "Для просмотра необходимо авторизоваться";
 $MESS["SIMPLECOMP_EXAM2_NEWS_COUNT"] = "Новостей #COUNT#";
+$MESS["SIMPLECOMP_EXAM2_IBLOCK_PANEL_BUTTON"] = "ИБ в админке";

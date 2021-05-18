@@ -6,6 +6,10 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("SIMPLECOMP_EXAM2_NEWS_IBLOCK_ID"),
 			"TYPE" => "STRING",
 		),
+        "PRODUCT_IBLOCK_ID" => array(
+            "NAME" => GetMessage("SIMPLECOMP_EXAM2_PRODUCT_IBLOCK_ID"),
+            "TYPE" => "STRING",
+        ),
 		"AUTHOR_PARAM_CODE" => array(
 			"NAME" => GetMessage("SIMPLECOMP_EXAM2_AUTHOR_PARAM_CODE"),
 			"TYPE" => "STRING",
