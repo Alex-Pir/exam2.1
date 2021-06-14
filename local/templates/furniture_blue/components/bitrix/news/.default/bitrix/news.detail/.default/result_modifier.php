@@ -12,4 +12,12 @@ if (intval($arParams["CANONICAL_IBLOCK_ID"]) > 0) {
 	}
 }
 
+global $USER, $APPLICATION;
+$arResult["SEND_PARAMS"] = [
+    "USER" => $USER->IsAuthorized() ? implode(', ', [$USER->GetID(), $USER->GetLogin(), $USER->GetFullName()]) : GetMessage("TPL_USER_NOT_FOUND"),
+    "DATE" => date("d.m.Y H:i:s"),
+    "NEW_ID" => $arResult["ID"],
+    "URL" => $APPLICATION->GetCurPage(),
+    "TYPE" => $arParams["USE_AJAX_REVIEW"] === 'Y' ? "REPORT_AJAX" : "REPORT"
+];
 

@@ -9,7 +9,11 @@
 	<?if($arParams["DISPLAY_NAME"]!="N" && $arResult["NAME"]):?>
 		<h3><?=$arResult["NAME"]?></h3>
 	<?endif;?>
-	<div class="news-detail">
+    <a id="link-review" href="<?= $arParams["USE_AJAX_REVIEW"] !== 'Y' ? $APPLICATION->GetCurPageParam(http_build_query($arResult["SEND_PARAMS"])) : '#'?>"><?= GetMessage("TPL_NEWS_REVIEW")?> </a>
+	<?if ($_GET["TYPE_RESPONSE"] === "RESPONSE"):?>
+        <span id="response-report"><?= $_GET["ID"] ? GetMessage("TPL_REPORT_RESULT", ["#COUNT#" => $_GET["ID"]]) : GetMessage("TPL_REPORT_ERROR")?></span>
+    <?endif;?>
+    <div class="news-detail">
 	<?if($arParams["DISPLAY_PREVIEW_TEXT"]!="N" && $arResult["FIELDS"]["PREVIEW_TEXT"]):?>
 		<p><?=$arResult["FIELDS"]["PREVIEW_TEXT"];unset($arResult["FIELDS"]["PREVIEW_TEXT"]);?></p>
 	<?endif;?>
@@ -40,3 +44,14 @@
 	<?endforeach;?>
 	</div>
 </div>
+<?if ($arParams["USE_AJAX_REVIEW"] === 'Y' && isset($arResult["SEND_PARAMS"])):?>
+    <script>
+        BX.ready(function() {
+            var review = new Review(<?= Bitrix\Main\Web\Json::encode($arResult["SEND_PARAMS"])?>);
+            BX.bind(BX('link-review'), 'click', function(event) {
+                event.preventDefault();
+                review.sendReview();
+            });
+        });
+    </script>
+<?endif;?>
